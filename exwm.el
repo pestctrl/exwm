@@ -441,11 +441,10 @@
       (exwm-workspace-switch (elt data 0)))
      ;; _NET_ACTIVE_WINDOW.
      ((= type xcb:Atom:_NET_ACTIVE_WINDOW)
-      (dolist (f exwm-workspace--list)
-        (when (eq id (frame-parameter f 'exwm-outer-id))
-          (x-focus-frame f t)))
-      (let ((buffer (exwm--id->buffer id))
-            iconic window)
+      (let* ((buffer (exwm--id->buffer id))
+	         (window (get-buffer-window buffer t))
+             iconic)
+	    (x-focus-frame (window-frame window) t)
         (when (buffer-live-p buffer)
           (with-current-buffer buffer
             (when (eq exwm--frame exwm-workspace--current)
@@ -457,7 +456,6 @@
                   (set-window-buffer (frame-selected-window exwm--frame)
                                      (current-buffer)))
                 ;; Focus transfer.
-                (setq window (get-buffer-window nil t))
                 (when (or iconic
                           (not (eq window (selected-window))))
                   (select-window window))))))))
